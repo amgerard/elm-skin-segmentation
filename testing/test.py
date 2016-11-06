@@ -1,7 +1,15 @@
+import time
+start = time.time()
+
 #print 'test'
 import sys
 import numpy as np
 import skimage.io as io
+from sklearn.cross_validation import train_test_split
+from sklearn.metrics import mean_absolute_error
+from sklearn.preprocessing import StandardScaler
+
+from ELM import ELMRegressor
 
 def im_read(path):
 	return io.imread(path)
@@ -29,8 +37,48 @@ def sample_test():
 	W = np.linalg.lstsq(X, Y)[0]
 	print W
 
+# get 1st path passed in as argument
 path = '' if len(sys.argv) < 2 else str(sys.argv[1])
-# print str(len(sys.argv)) + ': ' + str(sys.argv[0])
-train_imgs = io.ImageCollection(path + '*.jpg')
-combined_data = np.concatenate([im_reshape(im) for im in train_imgs], axis=0)
-print combined_data.shape
+
+# load all training images @ path
+all_train_imgs = io.ImageCollection(path + '*.jpg')
+
+# combine all images, one pixel per row
+X = np.concatenate([im_reshape(im) for im in all_train_imgs], axis=0)
+
+# get 2nd path passed in as argument
+path = '' if len(sys.argv) < 3 else str(sys.argv[2])
+
+# load all training images @ path
+all_masks = io.ImageCollection(path + '*.bmp')
+
+# combine all masks, one label per row
+y = np.concatenate([im_2_mask(im) for im in all_masks], axis=0)
+
+## DATA PREPROCESSING
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=2)
+
+'''
+stdScaler_data = StandardScaler()
+X_train = stdScaler_data.fit_transform(X_train)
+X_test = stdScaler_data.transform(X_test)
+
+stdScaler_target = StandardScaler()
+y_train = stdScaler_target.fit_transform(y_train)  # /max(y_train)
+y_test = stdScaler_target.transform(y_test)  # /max(y_train)
+max_y_train = max(abs(y_train))
+y_train = y_train / max_y_train
+y_test = y_test / max_y_train
+'''
+
+ELM = ELMRegressor(50)
+ELM.fit(X_train, y_train)
+prediction = ELM.predict(X_train)
+
+print 'train error: ' + str(mean_absolute_error(y_train, prediction))
+
+prediction = ELM.predict(X_test)
+print 'test error: ' + str(mean_absolute_error(y_test, prediction))
+
+end = time.time()
+print 'time elapsed: ' + str(end-start)
