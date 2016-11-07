@@ -55,7 +55,7 @@ function myinputs=FB_OPELM(data,input_init,kernel,maxneur,problem,normal)
 %             of European Symposium on Artificial Neural Networks (ESANN)
 %             2008, Bruges, Belgium.
 %
-%             Timo Simil‰, Jarkko Tikka. Multiresponse sparse regression with
+%             Timo Simil√§, Jarkko Tikka. Multiresponse sparse regression with
 %             application to multidimensional scaling. International Conference
 %             on Artificial Neural Networks (ICANN). Warsaw, Poland. September
 %             11-15, 2005. LNCS 3697, pp. 97-102.
