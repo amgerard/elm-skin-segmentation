@@ -1,0 +1,42 @@
+This is the OPELM Toolbox v1.1
+
+Following are the functions to be used by the user:
+
+* gui_OPELM
+
+        This is the Graphical User Interface (GUI) for using the 
+	following functions. Recommended for typical use of the
+	toolbox.
+
+
+* function [model]=train_OPELM(data,kernel,maxneur,problem,normal,KM)
+
+	This function trains a model using OPELM and the proper inputs
+
+
+* function [yh,error]=sim_OPELM(model,data)
+  
+        This function uses the computed model on a test dataset
+
+
+* function myinputs=LARS_Selection_OPELM(data,kernel,maxneur,problem,normal)	
+
+	This function uses the LARS algorithm with OPELM algorithm
+
+
+* function myinputs=FB_OPELM(data,input_init,kernel,maxneur,problem,normal)
+
+	This function uses the Forward-Backward algorithm with OPELM algorithm
+
+
+* function show_model( model )
+
+	This function displays the main content of a computed model 
+
+
+Typical data is provided in mydata1.mat for playing around with the toolbox basic features.
+
+	
+Please read the function's documentation and use the gui otherwise !
+
+Have fun.
