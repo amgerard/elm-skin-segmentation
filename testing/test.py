@@ -9,6 +9,10 @@ from sklearn.cross_validation import train_test_split
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 
+# super-pixels
+from skimage.segmentation import slic
+from skimage.util import img_as_float
+
 from ELM import ELMRegressor
 
 def im_read(path):
@@ -20,6 +24,12 @@ def im_reshape(im):
 	'''
 	x,y,z = im.shape
 	return im.reshape(x*y,z)
+
+def im_superpixels(im):
+    return slic(im, n_segments = 500, sigma = 5)
+
+def superpixels_2_stats(segs):
+    pass # return np.mean(
 
 def im_2_mask(im):
 	'''
@@ -50,13 +60,24 @@ X = np.concatenate([im_reshape(im) for im in all_train_imgs], axis=0)
 path = '' if len(sys.argv) < 3 else str(sys.argv[2])
 
 # load all training images @ path
-all_masks = io.ImageCollection(path + '*.bmp')
+all_train_masks = io.ImageCollection(path + '*.bmp')
 
 # combine all masks, one label per row
-y = np.concatenate([im_2_mask(im) for im in all_masks], axis=0)
+y = np.concatenate([im_2_mask(im) for im in all_train_masks], axis=0)
 
 ## DATA PREPROCESSING
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=2)
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=2)
+
+X_train = X
+y_train = y
+
+# same process above
+path = '' if len(sys.argv) < 4 else str(sys.argv[3])
+all_test_imgs = io.ImageCollection(path + '*.jpg')
+X_test = np.concatenate([im_reshape(im) for im in all_test_imgs], axis=0)
+path = '' if len(sys.argv) < 5 else str(sys.argv[4])
+all_test_masks = io.ImageCollection(path + '*.bmp')
+y_test = np.concatenate([im_2_mask(im) for im in all_test_masks], axis=0)
 
 '''
 stdScaler_data = StandardScaler()
@@ -71,7 +92,7 @@ y_train = y_train / max_y_train
 y_test = y_test / max_y_train
 '''
 
-ELM = ELMRegressor(50)
+ELM = ELMRegressor(30)
 ELM.fit(X_train, y_train)
 prediction = ELM.predict(X_train)
 
