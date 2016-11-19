@@ -20,7 +20,7 @@ path = '' if len(sys.argv) < 3 else str(sys.argv[2])
 # load all training images @ path
 all_train_masks = io.ImageCollection(path + '*.bmp')
 
-train = Transform.SuperPxlParellelTransform(all_train_imgs, all_train_masks)
+train = Transform.SuperPxlParallelTransform(all_train_imgs, all_train_masks)
 train.transform()
 X_train = train.X
 y_train = train.y
