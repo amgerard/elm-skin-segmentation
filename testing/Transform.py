@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-
+import time
 import numpy as np
 import skimage.io as io
 from sklearn.cross_validation import train_test_split
@@ -50,13 +50,16 @@ class SuperPxlTransform(ITransform):
     def transform(self):
         #images_and_masks = zip(self.images, [self.im_2_mask(m) for m in self.masks])
         #print len(test[0])
-	self.y =[]
+	st = time.time()
+        self.y =[]
         pool = ThreadPool(20) 
 
         #results = pool.map(self.im_superpixels, images_and_masks)
         im_labels = pool.map(self.get_im_labels, self.images)
         pool.close() 
         pool.join() # wait 
+
+	print '1 => ' + str(time.time()-st)
 
         pool = ThreadPool(20) 
         ims_and_labels = zip(self.images, im_labels)
@@ -65,6 +68,7 @@ class SuperPxlTransform(ITransform):
         pool.join() # wait 
 
         self.X = np.concatenate(results, axis=0)
+	print '2 => ' + str(time.time()-st)
 
         pool = ThreadPool(20) 
         labels_and_masks = zip(im_labels, [self.im_2_mask(m) for m in self.masks])
@@ -73,6 +77,7 @@ class SuperPxlTransform(ITransform):
         pool.join() # wait 
 
         self.y = np.concatenate(yy, axis=0)
+	print '3 => ' + str(time.time()-st)
         #self.X = np.concatenate([self.im_superpixels(pair) for pair in images_and_masks], axis=0)
         #self.y = np.concatenate([self.im_mask(mask) for mask in self.masks], axis=0)
         # self.y = np.ones(self.X.shape[0])
