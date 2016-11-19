@@ -3,7 +3,7 @@ start = time.time()
 
 import sys
 import Transform
-import skimage.io as ioi
+import skimage.io as io
 import numpy as np
 from sklearn.metrics import mean_absolute_error
 from ELM import ELMRegressor
