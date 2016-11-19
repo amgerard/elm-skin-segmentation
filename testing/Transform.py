@@ -87,7 +87,7 @@ class SuperPxlTransform(ITransform):
 		mode = stats.mode(mask[idxs[:,0],idxs[:,1]])
 		return mode.mode[0]
 
-class SuperPxlParallelTransform(ITransform):
+class SuperPxlParallelTransform(SuperPxlTransform):
 	def transform(self):
 		st = time.time()
 		self.y =[]
