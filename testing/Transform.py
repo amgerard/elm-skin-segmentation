@@ -61,11 +61,13 @@ class SuperPxlTransform(ITransform):
 
 	print '1 => ' + str(time.time()-st)
 
-        pool = ThreadPool(20) 
         ims_and_labels = zip(self.images, im_labels)
+        '''pool = ThreadPool(20) 
         results = pool.map(self.im_superpixels, ims_and_labels)
         pool.close() 
-        pool.join() # wait 
+        pool.join()''' # wait 
+
+	results = [self.im_superpixels(pair) for pair in ims_and_labels]
 
         self.X = np.concatenate(results, axis=0)
 	print '2 => ' + str(time.time()-st)
