@@ -8,9 +8,9 @@ from ELM import ELMRegressor
 
 # same transformed data
 X_train = np.loadtxt("X_train.csv", delimiter=",")
-y_train = np.loadtxt("y_train.csv", delimiter=",")
+y_train = np.loadtxt("y_train.csv", delimiter=",").astype(int8)
 X_test = np.loadtxt("X_test.csv", delimiter=",")
-y_test = np.loadtxt("y_test.csv", delimiter=",")
+y_test = np.loadtxt("y_test.csv", delimiter=",").astype(int8)
 
 for x in range(500, 2000, 200):
 	ELM = ELMRegressor(x)
