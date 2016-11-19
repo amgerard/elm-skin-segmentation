@@ -3,7 +3,8 @@ start = time.time()
 
 import sys
 import Transform
-import skimage.io as io
+import skimage.io as ioi
+import numpy as np
 from sklearn.metrics import mean_absolute_error
 from ELM import ELMRegressor
 
@@ -19,7 +20,7 @@ path = '' if len(sys.argv) < 3 else str(sys.argv[2])
 # load all training images @ path
 all_train_masks = io.ImageCollection(path + '*.bmp')
 
-train = Transform.SuperPxlTransform(all_train_imgs, all_train_masks)
+train = Transform.SuperPxlParellelTransform(all_train_imgs, all_train_masks)
 train.transform()
 X_train = train.X
 y_train = train.y
@@ -33,14 +34,20 @@ all_test_imgs = io.ImageCollection(path + '*.jpg')
 path = '' if len(sys.argv) < 5 else str(sys.argv[4])
 all_test_masks = io.ImageCollection(path + '*.bmp')
 
-test = Transform.SuperPxlTransform(all_test_imgs, all_test_masks)
+test = Transform.SuperPxlParallelTransform(all_test_imgs, all_test_masks)
 test.transform()
 X_test = test.X
 y_test = test.y
 
 print 'done, transforming test data: ' + str(time.time()-start)
 
-ELM = ELMRegressor(30)
+# same transformed data
+np.savetxt("X_train.csv", X_train, delimiter=",")
+np.savetxt("y_train.csv", y_train, delimiter=",")
+np.savetxt("X_test.csv", X_test, delimiter=",")
+np.savetxt("y_test.csv", y_test, delimiter=",")
+
+ELM = ELMRegressor(2000)
 ELM.fit(X_train, y_train)
 prediction = ELM.predict(X_train)
 
