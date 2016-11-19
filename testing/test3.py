@@ -12,7 +12,7 @@ X_test = np.loadtxt("X_test.csv", delimiter=",")
 y_test = np.loadtxt("y_test.csv", delimiter=",")
 
 for x in range(100, 10000, 100):
-	ELM = ELMRegressor(2000)
+	ELM = ELMRegressor(x)
 	ELM.fit(X_train, y_train)
 	prediction = ELM.predict(X_train)
 
