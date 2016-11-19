@@ -7,6 +7,8 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 from scipy import stats
 
+from multiprocessing.dummy import Pool as ThreadPool
+
 # super-pixels
 from skimage.segmentation import slic
 from skimage.util import img_as_float
@@ -49,7 +51,14 @@ class SuperPxlTransform(ITransform):
         images_and_masks = zip(self.images, [self.im_2_mask(m) for m in self.masks])
         #print len(test[0])
 	self.y =[]
-        self.X = np.concatenate([self.im_superpixels(pair) for pair in images_and_masks], axis=0)
+        pool = ThreadPool(20) 
+
+        results = pool.map(self.im_superpixels, images_and_masks)
+
+        pool.close() 
+        pool.join() # wait 
+        self.X = np.concatenate(results, axis=0)
+        #self.X = np.concatenate([self.im_superpixels(pair) for pair in images_and_masks], axis=0)
         #self.y = np.concatenate([self.im_mask(mask) for mask in self.masks], axis=0)
         # self.y = np.ones(self.X.shape[0])
     def im_superpixels(self,pair):
