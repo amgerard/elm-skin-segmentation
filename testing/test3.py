@@ -11,14 +11,15 @@ y_train = np.loadtxt("y_train.csv", delimiter=",")
 X_test = np.loadtxt("X_test.csv", delimiter=",")
 y_test = np.loadtxt("y_test.csv", delimiter=",")
 
-ELM = ELMRegressor(2000)
-ELM.fit(X_train, y_train)
-prediction = ELM.predict(X_train)
+for x in range(100, 10000, 100):
+	ELM = ELMRegressor(2000)
+	ELM.fit(X_train, y_train)
+	prediction = ELM.predict(X_train)
 
-print 'train error: ' + str(mean_absolute_error(y_train, prediction))
+	print 'train error: ' + str(mean_absolute_error(y_train, prediction))
 
-prediction = ELM.predict(X_test)
-print 'test error: ' + str(mean_absolute_error(y_test, prediction))
+	prediction = ELM.predict(X_test)
+	print 'test error: ' + str(mean_absolute_error(y_test, prediction))
 
-end = time.time()
-print 'time elapsed: ' + str(end-start)
+	end = time.time()
+	print 'time elapsed: ' + str(end-start)
