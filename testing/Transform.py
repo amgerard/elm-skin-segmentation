@@ -48,37 +48,55 @@ class SimpleTransform(ITransform):
 
 class SuperPxlTransform(ITransform):
     def transform(self):
-        images_and_masks = zip(self.images, [self.im_2_mask(m) for m in self.masks])
+        #images_and_masks = zip(self.images, [self.im_2_mask(m) for m in self.masks])
         #print len(test[0])
 	self.y =[]
         pool = ThreadPool(20) 
 
-        results = pool.map(self.im_superpixels, images_and_masks)
-
+        #results = pool.map(self.im_superpixels, images_and_masks)
+        im_labels = pool.map(self.get_im_labels, self.images)
         pool.close() 
         pool.join() # wait 
+
+        pool = ThreadPool(20) 
+        ims_and_labels = zip(self.images, im_labels)
+        results = pool.map(self.im_superpixels, ims_and_labels)
+        pool.close() 
+        pool.join() # wait 
+
         self.X = np.concatenate(results, axis=0)
+
+        pool = ThreadPool(20) 
+        labels_and_masks = zip(im_labels, [self.im_2_mask(m) for m in self.masks])
+        yy = pool.map(self.im_mask, labels_and_masks)
+        pool.close() 
+        pool.join() # wait 
+
+        self.y = np.concatenate(yy, axis=0)
         #self.X = np.concatenate([self.im_superpixels(pair) for pair in images_and_masks], axis=0)
         #self.y = np.concatenate([self.im_mask(mask) for mask in self.masks], axis=0)
         # self.y = np.ones(self.X.shape[0])
+    def get_im_labels(self,im):
+        return slic(im, n_segments = 100, sigma = 3) # 500, 5
+
     def im_superpixels(self,pair):
 	im = pair[0]
-	mask = pair[1]
-        im_labels = slic(im, n_segments = 100, sigma = 3) # 500, 5
+	im_labels = pair[1]
+        #im_labels = slic(im, n_segments = 100, sigma = 3) # 500, 5
         unique_labels = np.unique(im_labels)
 	#for x in unique_labels:
         #    idx = np.argwhere(im_labels == x)
         #    print x
         #    print idx.shape
         #    print im[idx].shape
-        segs = [self.pixels_by_label(im,mask,im_labels,x) for x in unique_labels]
+        segs = [self.pixels_by_label(im,im_labels,x) for x in unique_labels]
         return np.vstack([self.seg_2_stats(seg) for seg in segs])
-    def pixels_by_label(self, im, mask, im_labels, x):
+    def pixels_by_label(self, im, im_labels, x):
         idxs = np.argwhere(im_labels == x)
         #index = self.images.index(im)
         #mask = self.masks[index]
-        mode = stats.mode(mask[idxs[:,0],idxs[:,1]])
-        self.y.append(mode.mode[0])
+        #mode = stats.mode(mask[idxs[:,0],idxs[:,1]])
+        #self.y.append(mode.mode[0])
 	#print mode
         return im[idxs[:,0],idxs[:,1],:]
     def seg_2_stats(self, seg):
@@ -86,9 +104,13 @@ class SuperPxlTransform(ITransform):
         return np.array([np.mean(seg[:,0]), np.std(seg[:,0]), np.median(seg[:,0]),
 			 np.mean(seg[:,1]), np.std(seg[:,1]), np.median(seg[:,1]),
                          np.mean(seg[:,2]), np.std(seg[:,2]), np.median(seg[:,2])])
-    def im_mask(self,mask):
-        return [self.mask_by_label(mask,x) for x in self.unique_labels]
+    def im_mask(self,pair):
+        im_labels = pair[0]
+        mask = pair[1]
+        unique_labels = np.unique(im_labels)
+        return [self.mask_by_label(mask,im_labels,x) for x in unique_labels]
         #return np.vstack([self.seg_2_stats(seg) for seg in segs])
-    def mask_by_label(self, mask, x):
-        idxs = np.argwhere(self.im_labels == x)
-        return stats.mode(mask[idxs[:,0],idxs[:,1]])
+    def mask_by_label(self, mask, im_labels, x):
+        idxs = np.argwhere(im_labels == x)
+        mode = stats.mode(mask[idxs[:,0],idxs[:,1]])
+        return mode.mode[0]
