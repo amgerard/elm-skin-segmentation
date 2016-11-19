@@ -31,7 +31,7 @@ def im_reshape(im):
 def im_superpixels(im):
     im_labels = slic(im, n_segments = 100, sigma = 3) # 500, 5
     unique_labels = np.unique(im_labels)
-    segs = [im[np.argwhere(segments == x)] for x in unique_labels]
+    segs = [im[np.argwhere(im_labels == x)] for x in unique_labels]
     return np.vstack([seg_2_stats(seg) for seg in segs])
 
 def seg_2_stats(seg):
