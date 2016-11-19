@@ -8,19 +8,19 @@ from ELM import ELMRegressor
 
 # same transformed data
 X_train = np.loadtxt("X_train.csv", delimiter=",")
-y_train = np.loadtxt("y_train.csv", delimiter=",").astype(int8)
+y_train = np.loadtxt("y_train.csv", delimiter=",").astype(int)
 X_test = np.loadtxt("X_test.csv", delimiter=",")
-y_test = np.loadtxt("y_test.csv", delimiter=",").astype(int8)
+y_test = np.loadtxt("y_test.csv", delimiter=",").astype(int)
 
 for x in range(500, 2000, 200):
 	ELM = ELMRegressor(x)
 	ELM.fit(X_train, y_train)
-	prediction = ELM.predict(X_train)
-	print x
+	prediction = np.round(ELM.predict(X_train))
+	print x, prediction[0]
 	# print 'train error: ' + str(mean_absolute_error(y_train, prediction))
 	print 'train accuracy: ' + str(accuracy_score(y_train, prediction))
 
-	prediction = ELM.predict(X_test)
+	prediction = np.round(ELM.predict(X_test))
 	#print 'test error: ' + str(mean_absolute_error(y_test, prediction))
 	print 'test accuracy: ' + str(accuracy_score(y_test, prediction))
 
