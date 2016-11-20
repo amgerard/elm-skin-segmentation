@@ -42,7 +42,7 @@ class SimpleTransform(ITransform):
 		x,y,z = im.shape
 		return im.reshape(x*y,z)
 	def im_2_mask(self,im):
-		mask2d = ITransform.im_2_mask(im)
+		mask2d = ITransform.im_2_mask(self,im)
 		x,y = mask2d.shape
 		return mask2d.reshape(x*y)
 
