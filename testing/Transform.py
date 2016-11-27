@@ -66,6 +66,7 @@ class SuperPxlTransform(ITransform):
 		im_labels = pair[1]
 		unique_labels = np.unique(im_labels)
 		segs = [self.pixels_by_label(im,im_labels,x) for x in unique_labels]
+		# return np.r_[(self.seg_2_stats(seg) for seg in segs)]
 		return np.vstack([self.seg_2_stats(seg) for seg in segs])
 	
 	def pixels_by_label(self, im, im_labels, x):
@@ -100,12 +101,13 @@ class SuperPxlParallelTransform(SuperPxlTransform):
 		print '1 => ' + str(time.time()-st)
 
 		ims_and_labels = zip(self.images, im_labels)
-		'''pool = ThreadPool(20) 
-		results = pool.map(self.im_superpixels, ims_and_labels)
-		pool.close() 
-		pool.join()''' # wait 
+		pool2 = ThreadPool(20) 
+		results = pool2.map(self.im_superpixels, ims_and_labels)
+		pool2.close() 
+		pool2.join() # wait 
 
-		results = [self.im_superpixels(pair) for pair in ims_and_labels]
+		# results = [self.im_superpixels(pair) for pair in ims_and_labels]
+		print '1.5 => ' + str(time.time()-st)
 
 		self.X = np.concatenate(results, axis=0)
 		print '2 => ' + str(time.time()-st)
@@ -118,3 +120,17 @@ class SuperPxlParallelTransform(SuperPxlTransform):
 
 		self.y = np.concatenate(yy, axis=0)
 		print '3 => ' + str(time.time()-st)
+
+class SuperPxlParallelTestTransform(SuperPxlParallelTransform):
+    def seg_2_stats(self, seg):
+        statArr = SuperPxlParallelTransform.seg_2_stats(self,seg)
+        return statArr.reshape(1,statArr.shape[0]).repeat(seg.shape[0],0)
+        #return np.vstack([statArr for _ in seg])
+	def im_mask(self,pair):
+		im_labels = pair[0]
+		mask = pair[1]
+		unique_labels = np.unique(im_labels)
+		return np.concatenate([self.mask_by_label(mask,im_labels,x) for x in unique_labels])
+	def mask_by_label(self, mask, im_labels, x):
+		idxs = np.argwhere(im_labels == x)
+		return mask[idxs[:,0],idxs[:,1]]
